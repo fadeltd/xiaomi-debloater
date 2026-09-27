@@ -9,6 +9,10 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+Nothing yet.
+
+## [1.1.0] — 2026-09-27
+
 ### Added
 - Install with a package manager: Homebrew (`brew install --cask fadeltd/tap/xiaomi-debloater`),
   winget, Scoop, or Snap (as `android-debloater`). Each one installs adb as well.

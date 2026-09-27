@@ -12,7 +12,7 @@
   "info": {
     "companyName": "Fadel Trivandi Dipantara",
     "productName": "Xiaomi Debloater",
-    "productVersion": "1.0.0",
+    "productVersion": "1.1.0",
     "copyright": "Copyright © Fadel Trivandi Dipantara. GPL-3.0.",
     "comments": "Remove MIUI and HyperOS bloatware over ADB, without root"
   }
