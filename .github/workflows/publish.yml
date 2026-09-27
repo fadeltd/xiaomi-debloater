@@ -54,9 +54,19 @@ jobs:
           export VERSION=${TAG#v}
           mkdir -p dist
           tar -czf "dist/xiaomi-debloater-${TAG}-linux-${ARCH}.tar.gz" -C build/bin xiaomi-debloater
-          go install github.com/goreleaser/nfpm/v2/cmd/nfpm@v2.47.0
-          nfpm pkg -f packaging/nfpm.yaml -p deb -t dist/
-          nfpm pkg -f packaging/nfpm.yaml -p rpm -t dist/
+
+          # The release binary, not go install: nfpm needs a newer Go than the
+          # go.mod toolchain setup-go pins.
+          nfpm_version=2.47.0
+          case "$ARCH" in amd64) nfpm_arch=x86_64 ;; arm64) nfpm_arch=arm64 ;; esac
+          nfpm_tar="nfpm_${nfpm_version}_Linux_${nfpm_arch}.tar.gz"
+          base="https://github.com/goreleaser/nfpm/releases/download/v${nfpm_version}"
+          (cd "$RUNNER_TEMP" &&
+            curl -fsSLO "$base/$nfpm_tar" -O "$base/checksums.txt" &&
+            grep " ${nfpm_tar}\$" checksums.txt | sha256sum -c - &&
+            tar -xzf "$nfpm_tar" nfpm)
+          "$RUNNER_TEMP/nfpm" pkg -f packaging/nfpm.yaml -p deb -t dist/
+          "$RUNNER_TEMP/nfpm" pkg -f packaging/nfpm.yaml -p rpm -t dist/
           ls -l dist
 
       - uses: actions/upload-artifact@v7
