@@ -1,0 +1,65 @@
+# Built by the Publish workflow from the .deb it has just built: the workflow
+# unpacks the .deb into root/ next to snap/snapcraft.yaml, then runs snapcraft.
+# Named android-debloater to keep the store name clear of Xiaomi's trademark.
+name: android-debloater
+base: core24
+version: '@VERSION@'
+title: Android Debloater for Xiaomi
+summary: Remove MIUI and HyperOS bloatware over ADB, without root
+description: |
+  Xiaomi Debloater removes bloatware, ads and telemetry from Xiaomi, Redmi and
+  POCO phones running MIUI or HyperOS 1, 2 and 3. It works over ADB and needs
+  no root and no bootloader unlock. Every package has a plain-English
+  description and a safe, caution or danger rating, and removals can be
+  restored.
+
+  adb is bundled. Connect the adb-support interface once after installing:
+
+      sudo snap connect android-debloater:adb-support
+license: GPL-3.0-only
+icon: root/usr/share/icons/hicolor/512x512/apps/io.github.fadeltd.XiaomiDebloater.png
+website: https://fadeltd.github.io/xiaomi-debloater/
+source-code: https://github.com/fadeltd/xiaomi-debloater
+issues: https://github.com/fadeltd/xiaomi-debloater/issues
+grade: stable
+confinement: strict
+
+platforms:
+  amd64:
+  arm64:
+
+# WebKitGTK starts its helper processes from a path compiled into the library,
+# and the Debian adb finds its libraries through a RUNPATH. Both point at
+# /usr/lib, so bind the snap's copies there.
+layout:
+  /usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/webkit2gtk-4.1:
+    bind: $SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/webkit2gtk-4.1
+  /usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/android:
+    bind: $SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/android
+
+apps:
+  android-debloater:
+    command: usr/bin/xiaomi-debloater
+    desktop: usr/share/applications/io.github.fadeltd.XiaomiDebloater.desktop
+    common-id: io.github.fadeltd.XiaomiDebloater
+    extensions: [gnome]
+    plugs:
+      - network
+      - adb-support
+
+parts:
+  app:
+    plugin: dump
+    source: root/
+    stage-packages:
+      - libwebkit2gtk-4.1-0
+    override-build: |
+      craftctl default
+      # A themed icon name does not resolve outside the snap; point at the file.
+      sed -i 's|^Icon=.*|Icon=${SNAP}/usr/share/icons/hicolor/512x512/apps/io.github.fadeltd.XiaomiDebloater.png|' \
+        "$CRAFT_PART_INSTALL/usr/share/applications/io.github.fadeltd.XiaomiDebloater.desktop"
+
+  adb:
+    plugin: nil
+    stage-packages:
+      - adb

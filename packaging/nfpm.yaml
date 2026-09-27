@@ -1,0 +1,55 @@
+# .deb and .rpm packages, built by the Publish workflow:
+#   VERSION=1.1.0 ARCH=amd64 nfpm pkg -f packaging/nfpm.yaml -p deb -t dist/
+# ARCH is a Go arch (amd64, arm64); nfpm maps it to each format's own name.
+name: xiaomi-debloater
+arch: ${ARCH}
+platform: linux
+version: ${VERSION}
+section: utils
+priority: optional
+maintainer: Fadel Trivandi Dipantara <fadeltd@users.noreply.github.com>
+description: |
+  Remove MIUI and HyperOS bloatware over ADB, without root.
+  Desktop app for removing bloatware, ads and telemetry from Xiaomi, Redmi
+  and POCO phones, with a risk rating for every package.
+vendor: fadeltd
+homepage: https://fadeltd.github.io/xiaomi-debloater/
+license: GPL-3.0-only
+
+contents:
+  - src: build/bin/xiaomi-debloater
+    dst: /usr/bin/xiaomi-debloater
+    file_info:
+      mode: 0755
+  - src: packaging/linux/io.github.fadeltd.XiaomiDebloater.desktop
+    dst: /usr/share/applications/io.github.fadeltd.XiaomiDebloater.desktop
+  - src: packaging/linux/io.github.fadeltd.XiaomiDebloater.metainfo.xml
+    dst: /usr/share/metainfo/io.github.fadeltd.XiaomiDebloater.metainfo.xml
+  - src: packaging/linux/icon-512.png
+    dst: /usr/share/icons/hicolor/512x512/apps/io.github.fadeltd.XiaomiDebloater.png
+  - src: build/appicon.svg
+    dst: /usr/share/icons/hicolor/scalable/apps/io.github.fadeltd.XiaomiDebloater.svg
+  - src: LICENSE
+    dst: /usr/share/doc/xiaomi-debloater/copyright
+    packager: deb
+  - src: LICENSE
+    dst: /usr/share/licenses/xiaomi-debloater/LICENSE
+    packager: rpm
+
+# Built on Ubuntu 22.04 against WebKitGTK 4.1, so it runs on Ubuntu 22.04+,
+# Debian 12+, Fedora 39+ and their derivatives.
+overrides:
+  deb:
+    depends:
+      - libgtk-3-0t64 | libgtk-3-0
+      - libwebkit2gtk-4.1-0
+    # A recommend rather than a hard dependency, so a platform-tools adb
+    # installed by hand is not forced aside. apt installs recommends by default.
+    recommends:
+      - adb
+  rpm:
+    depends:
+      - gtk3
+      - webkit2gtk4.1
+    recommends:
+      - android-tools

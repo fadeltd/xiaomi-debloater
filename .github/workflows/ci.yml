@@ -1,0 +1,107 @@
+name: CI
+
+on:
+  pull_request:
+    # labeled/unlabeled so adding or removing skip-changelog re-runs the check.
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+  push:
+    branches: [main]
+
+# Cancel superseded runs on the same ref: only the latest push matters.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  changelog:
+    name: Changelog entry
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+
+      # Every PR that changes the app or its packages needs an entry under
+      # [Unreleased], because that section is what the next release is cut
+      # from. Package list, docs, CI and release tooling changes ship without
+      # a release, so they are exempt, and so is a PR labelled skip-changelog.
+      - name: Require a CHANGELOG.md entry
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          SKIP: ${{ contains(github.event.pull_request.labels.*.name, 'skip-changelog') }}
+        run: |
+          set -euo pipefail
+          if [ "$SKIP" = "true" ]; then
+            echo "::notice::skip-changelog label set; not checking CHANGELOG.md."
+            exit 0
+          fi
+
+          files=$(gh pr diff "$PR" --name-only)
+          exempt='^(bloatware\.json|LICENSE|\.gitignore|[^/]*\.md|docs/.*|\.github/.*|scripts/.*)$'
+          needs=$(echo "$files" | grep -Ev "$exempt" || true)
+          if [ -z "$needs" ]; then
+            echo "::notice::Only exempt files changed; no changelog entry needed."
+            exit 0
+          fi
+
+          if ! echo "$files" | grep -qx 'CHANGELOG.md'; then
+            echo "These files change the app or its packages:"
+            echo "$needs" | sed 's/^/  /'
+            echo "::error file=CHANGELOG.md::Add an entry under ## [Unreleased] in CHANGELOG.md (see CONTRIBUTING.md), or label the PR skip-changelog if it should not be released."
+            exit 1
+          fi
+
+          preview=$(go run ./scripts/release -dry-run)
+          echo "$preview"
+          if ! grep -q '^bump' <<<"$preview"; then
+            echo "::error file=CHANGELOG.md::CHANGELOG.md changed, but ## [Unreleased] has no ### section with bullets under it."
+            exit 1
+          fi
+
+  verify:
+    name: Test and build
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: ./.github/actions/setup
+        with:
+          linux-deps: 'true'
+
+      - name: Check formatting
+        run: |
+          unformatted=$(gofmt -l .)
+          if [ -n "$unformatted" ]; then
+            echo "::error::Run gofmt -w on: $unformatted"
+            exit 1
+          fi
+
+      # wails build typechecks and bundles the frontend, then compiles the app.
+      - name: Build
+        run: wails build -tags webkit2_41 -clean
+
+      - name: Vet and test
+        run: |
+          go vet -tags webkit2_41 ./...
+          go test -tags webkit2_41 ./...
+
+      - name: Validate the Linux desktop entry and metainfo
+        run: |
+          sudo apt-get install -y --no-install-recommends desktop-file-utils appstream
+          desktop-file-validate packaging/linux/*.desktop
+          appstreamcli validate --no-net --explain packaging/linux/*.metainfo.xml
+
+      - name: Render the package manifests
+        run: |
+          mkdir -p dist
+          for f in macos-universal.zip windows-amd64.exe windows-arm64.exe; do
+            echo "0000000000000000000000000000000000000000000000000000000000000000  xiaomi-debloater-v0.0.0-$f"
+          done > dist/SHA256SUMS.txt
+          packaging/render.sh 0.0.0 dist/SHA256SUMS.txt dist/manifests

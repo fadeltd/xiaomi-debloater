@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.fadeltd.XiaomiDebloater</id>
+  <name>Xiaomi Debloater</name>
+  <summary>Remove MIUI and HyperOS bloatware over ADB, without root</summary>
+  <developer id="io.github.fadeltd">
+    <name>Fadel Trivandi Dipantara</name>
+  </developer>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-only</project_license>
+  <launchable type="desktop-id">io.github.fadeltd.XiaomiDebloater.desktop</launchable>
+  <description>
+    <p>
+      Xiaomi Debloater removes bloatware, ads and telemetry from Xiaomi, Redmi and POCO phones
+      running MIUI or HyperOS 1, 2 and 3. It works over ADB and needs no root and no bootloader unlock.
+    </p>
+    <ul>
+      <li>640+ MIUI and HyperOS packages with plain-English descriptions and a risk rating</li>
+      <li>The package list updates from the project repository without reinstalling the app</li>
+      <li>Reversible: apps are uninstalled for the current user only and can be restored</li>
+      <li>Built-in guide to debloating safely</li>
+    </ul>
+  </description>
+  <url type="homepage">https://fadeltd.github.io/xiaomi-debloater/</url>
+  <url type="bugtracker">https://github.com/fadeltd/xiaomi-debloater/issues</url>
+  <url type="vcs-browser">https://github.com/fadeltd/xiaomi-debloater</url>
+  <content_rating type="oars-1.1"/>
+  <categories>
+    <category>Utility</category>
+  </categories>
+  <keywords>
+    <keyword>xiaomi</keyword>
+    <keyword>miui</keyword>
+    <keyword>hyperos</keyword>
+    <keyword>adb</keyword>
+    <keyword>debloat</keyword>
+  </keywords>
+  <releases>
+    <release version="1.0.0" date="2026-09-27"/>
+  </releases>
+</component>

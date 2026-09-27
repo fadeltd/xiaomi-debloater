@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Xiaomi Debloater
+GenericName=Android Debloater
+Comment=Remove MIUI and HyperOS bloatware over ADB, without root
+Exec=xiaomi-debloater
+Icon=io.github.fadeltd.XiaomiDebloater
+Terminal=false
+Categories=Utility;
+Keywords=xiaomi;redmi;poco;miui;hyperos;adb;android;bloatware;debloat;
+StartupWMClass=xiaomi-debloater
