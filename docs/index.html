@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Xiaomi Debloater — Remove MIUI &amp; HyperOS Bloatware Without Root</title>
+<meta name="description" content="Free, open-source Xiaomi debloater for Windows, macOS and Linux. Remove MIUI and HyperOS bloatware, ads and telemetry from Xiaomi, Redmi and POCO phones over ADB. No root, fully reversible.">
+<meta name="keywords" content="xiaomi debloater, hyperos debloater, miui debloater, remove miui ads, hyperos bloatware, redmi debloat, poco debloat, adb debloat no root">
+<link rel="canonical" href="https://fadeltd.github.io/xiaomi-debloater/">
+<link rel="icon" type="image/png" href="favicon.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Xiaomi Debloater — Remove MIUI & HyperOS Bloatware Without Root">
+<meta property="og:description" content="Desktop app to remove bloatware, ads and telemetry from Xiaomi, Redmi and POCO phones. MIUI and HyperOS 1–3. No root, reversible.">
+<meta property="og:url" content="https://fadeltd.github.io/xiaomi-debloater/">
+<meta property="og:image" content="https://fadeltd.github.io/xiaomi-debloater/icon.png">
+<meta name="twitter:card" content="summary">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Xiaomi Debloater",
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "Windows, macOS, Linux",
+  "description": "Remove MIUI and HyperOS bloatware, ads and telemetry from Xiaomi, Redmi and POCO phones over ADB, without root.",
+  "url": "https://fadeltd.github.io/xiaomi-debloater/",
+  "downloadUrl": "https://github.com/fadeltd/xiaomi-debloater/releases",
+  "license": "https://www.gnu.org/licenses/gpl-3.0.html",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "Is it safe to debloat a Xiaomi phone?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Xiaomi Debloater removes packages for the current user only, so they can be restored. Every package has a risk rating; packages marked danger can break calls, SIM, Settings or booting and should be left alone." } },
+    { "@type": "Question", "name": "Do I need root or an unlocked bootloader?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. Xiaomi Debloater works over ADB with USB debugging enabled." } },
+    { "@type": "Question", "name": "How do I restore a removed app?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Use Restore in the app's Removed tab, or run adb shell cmd package install-existing followed by the package name. A factory reset also restores everything." } },
+    { "@type": "Question", "name": "Does it work on HyperOS?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes. The package list covers MIUI 12-14 and HyperOS 1, 2 and 3, and the app downloads list updates for new Xiaomi OS releases." } }
+  ]
+}
+</script>
+<style>
+:root {
+  --bg: #ffffff; --surface: #f6f7f9; --text: #15181d; --muted: #5a6270; --border: #e3e6eb;
+  --accent: #ff6900; --accent-text: #ffffff; --code-bg: #eef0f3;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f141b; --surface: #182029; --text: #e8ebef; --muted: #9aa4b2; --border: #2a3440;
+    --accent: #ff7a1a; --accent-text: #15181d; --code-bg: #1f2833;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f141b; --surface: #182029; --text: #e8ebef; --muted: #9aa4b2; --border: #2a3440;
+  --accent: #ff7a1a; --accent-text: #15181d; --code-bg: #1f2833;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--text);
+  font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+.wrap { max-width: 880px; margin: 0 auto; padding: 0 16px; }
+header { padding: 64px 0 40px; text-align: center; }
+header img { width: 96px; height: 96px; }
+h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.2; margin: 16px 0 12px; }
+.lead { color: var(--muted); font-size: 1.15rem; max-width: 640px; margin: 0 auto 28px; }
+.buttons { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.btn {
+  display: inline-block; padding: 12px 22px; border-radius: 10px; font-weight: 600; text-decoration: none;
+  border: 1px solid var(--border); color: var(--text);
+}
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-text); }
+section { padding: 32px 0; border-top: 1px solid var(--border); }
+h2 { font-size: 1.5rem; margin: 0 0 16px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 16px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px; }
+.card h3 { margin: 0 0 6px; font-size: 1.05rem; }
+.card p { margin: 0; color: var(--muted); }
+ol li, ul li { margin: 6px 0; }
+code { background: var(--code-bg); padding: 2px 6px; border-radius: 5px; font-size: 0.9em; word-break: break-word; }
+details { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 18px; margin: 10px 0; }
+summary { font-weight: 600; cursor: pointer; }
+details p { color: var(--muted); margin: 10px 0 0; }
+a { color: var(--accent); }
+footer { padding: 32px 0 48px; color: var(--muted); font-size: 0.9rem; border-top: 1px solid var(--border); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <img src="icon.png" alt="" width="96" height="96">
+    <h1>Xiaomi Debloater</h1>
+    <p class="lead">Remove bloatware, ads and telemetry from Xiaomi, Redmi and POCO phones running MIUI or HyperOS. No root, fully reversible, for Windows, macOS and Linux.</p>
+    <div class="buttons">
+      <a class="btn primary" href="https://github.com/fadeltd/xiaomi-debloater/releases">Download</a>
+      <a class="btn" href="https://github.com/fadeltd/xiaomi-debloater">View on GitHub</a>
+    </div>
+  </header>
+
+  <section>
+    <h2>Why a Xiaomi-only debloater?</h2>
+    <div class="grid">
+      <div class="card"><h3>640+ Xiaomi packages</h3><p>Every package gets a plain-English description and a safe / caution / danger rating, for MIUI 12–14 and HyperOS 1, 2 and 3.</p></div>
+      <div class="card"><h3>Updated for new releases</h3><p>The app downloads the latest package list, so new HyperOS bloat is recognised without reinstalling.</p></div>
+      <div class="card"><h3>Reversible</h3><p>Apps are removed for your user only. Restore any of them from the Removed tab.</p></div>
+      <div class="card"><h3>No root needed</h3><p>Everything runs over ADB with USB debugging. Your bootloader stays locked and OTA updates keep working.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>How to debloat MIUI or HyperOS</h2>
+    <ol>
+      <li>Install ADB: <code>brew install android-platform-tools</code> (macOS), <code>winget install Google.PlatformTools</code> (Windows) or <code>sudo apt install adb</code> (Linux).</li>
+      <li>On the phone, open Settings &gt; About phone and tap <em>MIUI version</em> or <em>OS version</em> 7 times.</li>
+      <li>Turn on Settings &gt; Additional settings &gt; Developer options &gt; <em>USB debugging</em>.</li>
+      <li>Connect by USB and tap <em>Allow</em> on the phone.</li>
+      <li>Open Xiaomi Debloater, start with the Bloatware tab, and remove packages marked <em>safe</em>.</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>FAQ</h2>
+    <details><summary>Is it safe to debloat a Xiaomi phone?</summary><p>Packages are removed for the current user only, so they can be restored. Packages marked danger can break calls, SIM, Settings or booting; leave them alone and back up first.</p></details>
+    <details><summary>Do I need root or an unlocked bootloader?</summary><p>No. Xiaomi Debloater works over ADB with USB debugging enabled.</p></details>
+    <details><summary>How do I restore a removed app?</summary><p>Use Restore in the app's Removed tab, or run <code>adb shell cmd package install-existing &lt;package&gt;</code>. A factory reset also restores everything.</p></details>
+    <details><summary>Does it work on HyperOS 3?</summary><p>Yes. The list includes HyperOS 3 packages from the Xiaomi 15 Ultra and is shared by most current Xiaomi, Redmi and POCO models. Missing a package? <a href="https://github.com/fadeltd/xiaomi-debloater/issues/new?template=package-report.yml">Report it</a>.</p></details>
+    <details><summary>How is this different from Universal Android Debloater?</summary><p><a href="https://github.com/Universal-Debloater-Alliance/universal-android-debloater-next-generation">UAD-ng</a> covers every brand. Xiaomi Debloater focuses on Xiaomi only, tracks packages per MIUI/HyperOS version, and includes a Xiaomi-specific guide.</p></details>
+  </section>
+
+  <footer>
+    Open source under GPL-3.0. Xiaomi, MIUI, HyperOS, Redmi and POCO are trademarks of Xiaomi Inc.; this project is not affiliated with Xiaomi.
+  </footer>
+</div>
+</body>
+</html>

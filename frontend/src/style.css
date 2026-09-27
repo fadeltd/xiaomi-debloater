@@ -1,0 +1,40 @@
+@import "tailwindcss";
+
+html {
+    background-color: rgba(27, 38, 54, 1);
+}
+
+body {
+    margin: 0;
+    font-family: "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+    "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
+}
+
+@font-face {
+    font-family: "Nunito";
+    font-style: normal;
+    font-weight: 400;
+    src: local(""),
+    url("assets/fonts/nunito-v16-latin-regular.woff2") format("woff2");
+}
+
+#root {
+    height: 100vh;
+}
+
+/* Guide page (rendered from guide.md) */
+.guide { color: var(--color-gray-300); font-size: 0.9rem; line-height: 1.65; }
+.guide h1 { color: white; font-size: 1.6rem; font-weight: 700; margin-bottom: 1rem; }
+.guide h2 { color: white; font-size: 1.15rem; font-weight: 600; margin: 2rem 0 0.75rem; padding-bottom: 0.4rem; border-bottom: 1px solid var(--color-gray-700); }
+.guide p { margin: 0.6rem 0; }
+.guide ul, .guide ol { margin: 0.6rem 0; padding-left: 1.4rem; }
+.guide ul { list-style: disc; }
+.guide ol { list-style: decimal; }
+.guide li { margin: 0.35rem 0; }
+.guide strong { color: var(--color-gray-100); }
+.guide a { color: var(--color-blue-400); text-decoration: underline; word-break: break-all; }
+.guide code { background: var(--color-gray-800); color: var(--color-orange-300); padding: 0.1rem 0.35rem; border-radius: 0.25rem; font-size: 0.8rem; }
+.guide table { width: 100%; border-collapse: collapse; margin: 0.75rem 0; font-size: 0.85rem; }
+.guide th, .guide td { border: 1px solid var(--color-gray-700); padding: 0.45rem 0.6rem; text-align: left; vertical-align: top; }
+.guide th { background: var(--color-gray-800); color: var(--color-gray-100); }

@@ -1,0 +1,38 @@
+name: Package report
+description: Report a package that is missing from the list, or wrongly labelled
+title: "[package] "
+labels: ["package-list"]
+body:
+  - type: input
+    id: package
+    attributes:
+      label: Package name
+      placeholder: com.miui.analytics
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What is wrong?
+      options:
+        - Missing from the list
+        - Wrong risk level (safe / caution / danger)
+        - Wrong or unclear description
+        - Removing it broke something
+    validations:
+      required: true
+  - type: input
+    id: device
+    attributes:
+      label: Device and OS version
+      description: Settings > About phone. Include region (Global, EEA, China, India).
+      placeholder: Xiaomi 15 Ultra, HyperOS 3.0.2 Global
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: What happened / what does the package do?
+      description: If something broke, say what stopped working and whether restoring the package fixed it.
+    validations:
+      required: true

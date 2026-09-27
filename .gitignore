@@ -1,0 +1,61 @@
+# Go build output
+/build/bin/
+/xiaomi-debloater
+*.exe
+*.exe~
+*.dll
+*.so
+*.so.*
+*.dylib
+*.o
+*.a
+
+# Go test output
+*.test
+*.out
+
+# Node/npm
+node_modules/
+npm-debug.log
+pnpm-debug.log
+yarn-error.log
+dist/
+.pnpm-store/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.sublime-workspace
+*.sublime-project
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# OS-specific
+.DS_Store
+Thumbs.db
+*.log
+
+# Wails frontend dependencies
+frontend/node_modules/
+
+# Generated bindings
+frontend/wailsjs/
+
+# Build artifacts
+*.app/
+*.dmg
+
+# Testing
+coverage/
+.coverage
+
+# Misc
+.claude/
+*.tmp
