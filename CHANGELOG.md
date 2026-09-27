@@ -11,7 +11,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Added
 - Install with a package manager: Homebrew (`brew install --cask fadeltd/tap/xiaomi-debloater`),
-  Scoop, winget, Chocolatey and Snap. Each one installs adb as a dependency.
+  winget, Scoop, or Snap (as `android-debloater`). Each one installs adb as well.
 - `.deb` and `.rpm` packages for Linux, with a desktop entry and icon.
 - Releases are built and published by GitHub Actions from this changelog.
 

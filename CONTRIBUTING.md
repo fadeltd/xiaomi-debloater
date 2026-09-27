@@ -82,8 +82,9 @@ The package manager templates live in [`packaging/`](packaging). [`packaging/ren
 
 | Secret | Channel | Setup |
 |---|---|---|
-| `TAP_GITHUB_TOKEN` | Homebrew, Scoop | Fine-grained token with *Contents: read and write* on `fadeltd/homebrew-tap` and `fadeltd/scoop-bucket` |
+| `HOMEBREW_TAP_DEPLOY_KEY` | Homebrew | Private half of an SSH deploy key with write access on `fadeltd/homebrew-tap` |
+| `SCOOP_BUCKET_DEPLOY_KEY` | Scoop | Private half of an SSH deploy key with write access on `fadeltd/scoop-bucket` |
 | `WINGET_TOKEN` | winget | Classic token with `public_repo`. Publish opens a pull request on `microsoft/winget-pkgs` from a fork owned by the token's user |
-| `CHOCO_API_KEY` | Chocolatey | API key from your community.chocolatey.org account. Every version goes through moderation before it is public |
-| `SNAPCRAFT_STORE_CREDENTIALS` | Snap | `snapcraft register xiaomi-debloater`, then `snapcraft export-login --snaps=xiaomi-debloater --channels=stable -` |
+| `SNAPCRAFT_STORE_CREDENTIALS` | Snap (`android-debloater`) | `snapcraft export-login --snaps=android-debloater --acls=package_access,package_push,package_update,package_release creds.txt` |
+| `CHOCO_API_KEY` | Chocolatey | Not set up yet. The templates and job are ready; the job runs once the key exists. Every version goes through moderation |
 | `RELEASE_TOKEN` (optional) | Release | Only needed if branch protection stops `github-actions[bot]` pushing the release commit to `main` |

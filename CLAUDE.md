@@ -29,7 +29,7 @@ merge would cut with `go run ./scripts/release -dry-run`.
 
 Merge to `main` → `release.yml` cuts the version from `[Unreleased]`, tags it
 and opens a draft release → `publish.yml` builds every platform, publishes the
-release and updates Homebrew, Scoop, winget, Chocolatey and Snap. Details and
+release and updates Homebrew, Scoop, winget and Snap. Details and
 required secrets are in `CONTRIBUTING.md`. Package manager templates are in
 `packaging/`, filled by `packaging/render.sh`.
 

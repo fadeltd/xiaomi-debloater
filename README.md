@@ -43,10 +43,9 @@ Every package manager below installs adb for you.
 | macOS (Homebrew) | `brew install --cask fadeltd/tap/xiaomi-debloater` |
 | Windows (winget) | `winget install fadeltd.XiaomiDebloater` |
 | Windows (Scoop) | `scoop bucket add fadeltd https://github.com/fadeltd/scoop-bucket` then `scoop install xiaomi-debloater` |
-| Windows (Chocolatey) | `choco install xiaomi-debloater` |
 | Ubuntu, Debian, Mint | Download the `.deb` from [Releases](../../releases), then `sudo apt install ./xiaomi-debloater_*.deb` |
 | Fedora, openSUSE | Download the `.rpm` from [Releases](../../releases), then `sudo dnf install ./xiaomi-debloater-*.rpm` |
-| Linux (Snap) | `sudo snap install xiaomi-debloater` then `sudo snap connect xiaomi-debloater:adb-support` |
+| Linux (Snap) | `sudo snap install android-debloater` then `sudo snap connect android-debloater:adb-support` |
 
 Or download the app for Windows, macOS or Linux from [Releases](../../releases), or [build it yourself](CONTRIBUTING.md#building-the-app).
 

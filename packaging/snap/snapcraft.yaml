@@ -1,9 +1,10 @@
 # Built by the Publish workflow from the .deb it has just built: the workflow
 # unpacks the .deb into root/ next to snap/snapcraft.yaml, then runs snapcraft.
-name: xiaomi-debloater
+# Named android-debloater to keep the store name clear of Xiaomi's trademark.
+name: android-debloater
 base: core24
 version: '@VERSION@'
-title: Xiaomi Debloater
+title: Android Debloater for Xiaomi
 summary: Remove MIUI and HyperOS bloatware over ADB, without root
 description: |
   Xiaomi Debloater removes bloatware, ads and telemetry from Xiaomi, Redmi and
@@ -14,7 +15,7 @@ description: |
 
   adb is bundled. Connect the adb-support interface once after installing:
 
-      sudo snap connect xiaomi-debloater:adb-support
+      sudo snap connect android-debloater:adb-support
 license: GPL-3.0-only
 icon: root/usr/share/icons/hicolor/512x512/apps/io.github.fadeltd.XiaomiDebloater.png
 website: https://fadeltd.github.io/xiaomi-debloater/
@@ -37,7 +38,7 @@ layout:
     bind: $SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/android
 
 apps:
-  xiaomi-debloater:
+  android-debloater:
     command: usr/bin/xiaomi-debloater
     desktop: usr/share/applications/io.github.fadeltd.XiaomiDebloater.desktop
     common-id: io.github.fadeltd.XiaomiDebloater
