@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>xiaomi-debloater</id>
+    <version>@VERSION@</version>
+    <packageSourceUrl>https://github.com/fadeltd/xiaomi-debloater/tree/main/packaging/chocolatey</packageSourceUrl>
+    <owners>fadeltd</owners>
+    <title>Xiaomi Debloater</title>
+    <authors>Fadel Trivandi Dipantara</authors>
+    <projectUrl>https://fadeltd.github.io/xiaomi-debloater/</projectUrl>
+    <iconUrl>https://raw.githubusercontent.com/fadeltd/xiaomi-debloater/main/packaging/linux/icon-512.png</iconUrl>
+    <copyright>Fadel Trivandi Dipantara</copyright>
+    <licenseUrl>https://github.com/fadeltd/xiaomi-debloater/blob/main/LICENSE</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <projectSourceUrl>https://github.com/fadeltd/xiaomi-debloater</projectSourceUrl>
+    <bugTrackerUrl>https://github.com/fadeltd/xiaomi-debloater/issues</bugTrackerUrl>
+    <tags>xiaomi-debloater xiaomi redmi poco miui hyperos adb android debloat bloatware</tags>
+    <summary>Remove MIUI and HyperOS bloatware over ADB, without root.</summary>
+    <description><![CDATA[Xiaomi Debloater is a free, open-source desktop app for removing bloatware, ads and telemetry from Xiaomi, Redmi and POCO phones running MIUI or HyperOS 1, 2 and 3. It works over ADB and needs no root and no bootloader unlock.
+
+## Features
+
+- 640+ MIUI and HyperOS packages with plain-English descriptions and a safe, caution or danger rating
+- The package list updates from the project repository without reinstalling the app
+- Reversible: apps are uninstalled for the current user only and can be restored from the Removed tab
+- Built-in guide to debloating MIUI and HyperOS safely
+]]></description>
+    <releaseNotes>https://github.com/fadeltd/xiaomi-debloater/releases/tag/v@VERSION@</releaseNotes>
+    <dependencies>
+      <dependency id="adb" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>

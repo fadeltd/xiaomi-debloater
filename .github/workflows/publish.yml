@@ -1,0 +1,323 @@
+name: Publish
+
+# Builds a TAG, never a branch: whatever shipped is always reachable by version.
+# Started by the Release workflow after it tags a merge to main. To publish a
+# hand-pushed tag, run it from the Actions tab with that tag.
+#
+# Each package manager job runs only when its secret is configured, so a
+# missing credential skips that channel instead of failing the release.
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to publish, e.g. v1.1.0'
+        required: true
+        type: string
+
+concurrency:
+  group: publish-${{ inputs.tag }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+env:
+  TAG: ${{ inputs.tag }}
+
+jobs:
+  linux:
+    name: Build Linux ${{ matrix.arch }}
+    # 22.04, so the binary runs on every distro with glibc 2.35 or newer.
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      matrix:
+        include:
+          - { arch: amd64, runner: ubuntu-22.04 }
+          - { arch: arm64, runner: ubuntu-22.04-arm }
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.tag }}
+
+      - uses: ./.github/actions/setup
+        with:
+          linux-deps: 'true'
+
+      - name: Build
+        run: wails build -tags webkit2_41 -trimpath -clean
+
+      - name: Package
+        env:
+          ARCH: ${{ matrix.arch }}
+        run: |
+          set -euo pipefail
+          export VERSION=${TAG#v}
+          mkdir -p dist
+          tar -czf "dist/xiaomi-debloater-${TAG}-linux-${ARCH}.tar.gz" -C build/bin xiaomi-debloater
+          go install github.com/goreleaser/nfpm/v2/cmd/nfpm@v2.47.0
+          nfpm pkg -f packaging/nfpm.yaml -p deb -t dist/
+          nfpm pkg -f packaging/nfpm.yaml -p rpm -t dist/
+          ls -l dist
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: linux-${{ matrix.arch }}
+          path: dist/*
+          if-no-files-found: error
+
+  macos:
+    name: Build macOS universal
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.tag }}
+
+      - uses: ./.github/actions/setup
+
+      - name: Build
+        run: wails build -platform darwin/universal -trimpath -clean
+
+      # ditto, not zip: it keeps the bundle's code signature intact.
+      - name: Package
+        run: |
+          mkdir -p dist
+          ditto -c -k --keepParent build/bin/xiaomi-debloater.app "dist/xiaomi-debloater-${TAG}-macos-universal.zip"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: macos
+          path: dist/*
+          if-no-files-found: error
+
+  windows:
+    name: Build Windows
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.tag }}
+
+      - uses: ./.github/actions/setup
+
+      - name: Build
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          for arch in amd64 arm64; do
+            wails build -platform "windows/${arch}" -trimpath -clean
+            mv build/bin/xiaomi-debloater.exe "dist/xiaomi-debloater-${TAG}-windows-${arch}.exe"
+          done
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: windows
+          path: dist/*
+          if-no-files-found: error
+
+  release:
+    name: Upload and publish the GitHub release
+    needs: [linux, macos, windows]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.tag }}
+
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+
+      - uses: actions/download-artifact@v8
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Checksums
+        working-directory: dist
+        run: sha256sum -- * > SHA256SUMS.txt && cat SHA256SUMS.txt
+
+      # Release normally created the draft already. A hand-pushed tag has no
+      # release yet, so create one from the changelog section of that version.
+      - name: Upload assets and publish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          if ! gh release view "$TAG" >/dev/null 2>&1; then
+            go run ./scripts/release -notes "${TAG#v}" > notes.md
+            gh release create "$TAG" --draft --verify-tag --title "$TAG" --notes-file notes.md
+          fi
+          gh release upload "$TAG" dist/* --clobber
+          gh release edit "$TAG" --draft=false --latest
+
+      - name: Render the package manifests
+        run: packaging/render.sh "${TAG#v}" dist/SHA256SUMS.txt manifests
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: manifests
+          path: manifests
+          if-no-files-found: error
+
+  # Secrets cannot be read in a job-level `if`, so expose which ones exist.
+  channels:
+    name: Check configured channels
+    runs-on: ubuntu-latest
+    outputs:
+      taps: ${{ steps.check.outputs.taps }}
+      winget: ${{ steps.check.outputs.winget }}
+      chocolatey: ${{ steps.check.outputs.chocolatey }}
+      snap: ${{ steps.check.outputs.snap }}
+    steps:
+      - id: check
+        env:
+          TAPS: ${{ secrets.TAP_GITHUB_TOKEN }}
+          WINGET: ${{ secrets.WINGET_TOKEN }}
+          CHOCOLATEY: ${{ secrets.CHOCO_API_KEY }}
+          SNAP: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
+        run: |
+          for name in TAPS WINGET CHOCOLATEY SNAP; do
+            if [ -n "${!name}" ]; then value=true; else value=false; fi
+            echo "${name,,}=${value}" >> "$GITHUB_OUTPUT"
+            echo "${name,,}: ${value}" >> "$GITHUB_STEP_SUMMARY"
+          done
+
+  taps:
+    name: Update ${{ matrix.name }}
+    needs: [release, channels]
+    if: needs.channels.outputs.taps == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: Homebrew tap, repo: fadeltd/homebrew-tap, dir: homebrew }
+          - { name: Scoop bucket, repo: fadeltd/scoop-bucket, dir: scoop }
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: manifests
+          path: manifests
+
+      - uses: actions/checkout@v7
+        with:
+          repository: ${{ matrix.repo }}
+          token: ${{ secrets.TAP_GITHUB_TOKEN }}
+          path: tap
+
+      - name: Commit and push
+        working-directory: tap
+        run: |
+          set -euo pipefail
+          cp -R "../manifests/${{ matrix.dir }}/." .
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "::notice::${{ matrix.repo }} is already at ${TAG}."
+          else
+            git commit -m "xiaomi-debloater ${TAG#v}"
+            git push
+          fi
+
+  winget:
+    name: Submit to winget
+    needs: [release, channels]
+    if: needs.channels.outputs.winget == 'true'
+    runs-on: windows-latest
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: manifests
+          path: manifests
+
+      # Opens a pull request on microsoft/winget-pkgs from a fork owned by the
+      # token's user; it merges after the winget validation pipeline passes.
+      - name: Submit the manifests
+        shell: pwsh
+        env:
+          WINGET_TOKEN: ${{ secrets.WINGET_TOKEN }}
+        run: |
+          $version = $env:TAG.TrimStart('v')
+          Invoke-WebRequest https://aka.ms/wingetcreate/latest -OutFile wingetcreate.exe
+          .\wingetcreate.exe submit `
+            --token $env:WINGET_TOKEN `
+            --prtitle "New version: fadeltd.XiaomiDebloater version $version" `
+            "manifests/winget/manifests/f/fadeltd/XiaomiDebloater/$version"
+
+  chocolatey:
+    name: Push to Chocolatey
+    needs: [release, channels]
+    if: needs.channels.outputs.chocolatey == 'true'
+    runs-on: windows-latest
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: manifests
+          path: manifests
+
+      - name: Pack
+        shell: pwsh
+        run: choco pack manifests/chocolatey/xiaomi-debloater.nuspec --outputdirectory out
+
+      # Install from the fresh package before pushing it, pulling the adb
+      # dependency from the community repository as a real install would.
+      - name: Smoke test the install
+        shell: pwsh
+        run: |
+          choco install xiaomi-debloater -y --source "'out;https://community.chocolatey.org/api/v2/'"
+          choco uninstall xiaomi-debloater -y
+
+      # New versions wait in Chocolatey's moderation queue before going live.
+      - name: Push
+        shell: pwsh
+        env:
+          CHOCO_API_KEY: ${{ secrets.CHOCO_API_KEY }}
+        run: |
+          $version = $env:TAG.TrimStart('v')
+          choco push "out/xiaomi-debloater.$version.nupkg" --source https://push.chocolatey.org/ --api-key $env:CHOCO_API_KEY
+
+  snap:
+    name: Publish snap ${{ matrix.arch }}
+    needs: [release, channels]
+    if: needs.channels.outputs.snap == 'true'
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { arch: amd64, runner: ubuntu-24.04 }
+          - { arch: arm64, runner: ubuntu-24.04-arm }
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: manifests
+          path: manifests
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: linux-${{ matrix.arch }}
+          path: dist
+
+      # The snap is the .deb's files plus WebKitGTK and adb, so the binary in
+      # the snap is byte-for-byte the one in the release.
+      - name: Unpack the .deb
+        run: |
+          mkdir -p manifests/snap/root
+          dpkg -x dist/xiaomi-debloater_*_${{ matrix.arch }}.deb manifests/snap/root
+
+      - id: build
+        uses: snapcore/action-build@v1
+        with:
+          path: manifests/snap
+
+      - uses: snapcore/action-publish@v1
+        env:
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
+        with:
+          snap: ${{ steps.build.outputs.snap }}
+          release: stable

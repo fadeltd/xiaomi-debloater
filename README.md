@@ -34,9 +34,25 @@ Any Xiaomi, Redmi or POCO phone with MIUI 12–14 or HyperOS 1, 2 or 3, includin
 
 Read the in-app **Guide** tab before removing anything marked `caution`.
 
-## Download
+## Install
 
-Download the latest build for Windows, macOS or Linux from [Releases](../../releases), or [build it yourself](CONTRIBUTING.md#building-the-app).
+Every package manager below installs adb for you.
+
+| Platform | Command |
+|---|---|
+| macOS (Homebrew) | `brew install --cask fadeltd/tap/xiaomi-debloater` |
+| Windows (winget) | `winget install fadeltd.XiaomiDebloater` |
+| Windows (Scoop) | `scoop bucket add fadeltd https://github.com/fadeltd/scoop-bucket` then `scoop install xiaomi-debloater` |
+| Windows (Chocolatey) | `choco install xiaomi-debloater` |
+| Ubuntu, Debian, Mint | Download the `.deb` from [Releases](../../releases), then `sudo apt install ./xiaomi-debloater_*.deb` |
+| Fedora, openSUSE | Download the `.rpm` from [Releases](../../releases), then `sudo dnf install ./xiaomi-debloater-*.rpm` |
+| Linux (Snap) | `sudo snap install xiaomi-debloater` then `sudo snap connect xiaomi-debloater:adb-support` |
+
+Or download the app for Windows, macOS or Linux from [Releases](../../releases), or [build it yourself](CONTRIBUTING.md#building-the-app).
+
+**macOS:** the app is not notarized by Apple yet, so macOS blocks the first launch. Run `xattr -dr com.apple.quarantine "/Applications/Xiaomi Debloater.app"`, or open it once, then click *Open Anyway* in System Settings > Privacy & Security.
+
+**Snap:** the snap bundles its own adb. Stop any other adb server first (`adb kill-server`), because only one can use the phone at a time.
 
 ## FAQ
 

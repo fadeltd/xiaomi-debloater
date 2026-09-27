@@ -1,0 +1,19 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.1.9.0.schema.json
+PackageIdentifier: fadeltd.XiaomiDebloater
+PackageVersion: @VERSION@
+InstallerType: portable
+Commands:
+  - xiaomi-debloater
+Dependencies:
+  PackageDependencies:
+    - PackageIdentifier: Google.PlatformTools
+ReleaseDate: @DATE@
+Installers:
+  - Architecture: x64
+    InstallerUrl: https://github.com/fadeltd/xiaomi-debloater/releases/download/v@VERSION@/xiaomi-debloater-v@VERSION@-windows-amd64.exe
+    InstallerSha256: @SHA256_WINDOWS_AMD64_UPPER@
+  - Architecture: arm64
+    InstallerUrl: https://github.com/fadeltd/xiaomi-debloater/releases/download/v@VERSION@/xiaomi-debloater-v@VERSION@-windows-arm64.exe
+    InstallerSha256: @SHA256_WINDOWS_ARM64_UPPER@
+ManifestType: installer
+ManifestVersion: 1.9.0
