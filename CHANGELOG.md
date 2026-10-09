@@ -9,7 +9,9 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
-Nothing yet.
+### Security
+- The Snap package now includes the libsoup security update from
+  USN-8890-1. Other packages are rebuilt but unchanged.
 
 ## [1.1.0] — 2026-09-27
 
