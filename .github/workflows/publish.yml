@@ -250,8 +250,13 @@ jobs:
     name: Submit to winget
     needs: [release, channels]
     if: needs.channels.outputs.winget == 'true'
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.tag }}
+          sparse-checkout: scripts
+
       - uses: actions/download-artifact@v8
         with:
           name: manifests
@@ -259,16 +264,14 @@ jobs:
 
       # Opens a pull request on microsoft/winget-pkgs from a fork owned by the
       # token's user; it merges after the winget validation pipeline passes.
+      # Not wingetcreate: its releases lag the manifest schema winget-pkgs
+      # requires, and it refuses to submit newer manifests.
       - name: Submit the manifests
-        shell: pwsh
         env:
-          WINGET_TOKEN: ${{ secrets.WINGET_TOKEN }}
+          GH_TOKEN: ${{ secrets.WINGET_TOKEN }}
         run: |
-          $version = $env:TAG.TrimStart('v')
-          Invoke-WebRequest https://aka.ms/wingetcreate/latest -OutFile wingetcreate.exe
-          .\wingetcreate.exe submit `
-            --token $env:WINGET_TOKEN `
-            --prtitle "New version: fadeltd.XiaomiDebloater version $version" `
+          version="${TAG#v}"
+          scripts/winget-submit.sh "$version" \
             "manifests/winget/manifests/f/fadeltd/XiaomiDebloater/$version"
 
   chocolatey:
